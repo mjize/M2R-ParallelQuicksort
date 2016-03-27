@@ -4,7 +4,6 @@
   http://sc12.supercomputing.org/hpceducator/PythonForParallelism/codes/parallelQuicksort.c.
   Later, Arnaud Legrand mainly made a few cosmetic changes so that it
   is easier to use for performance evaluation purposes.
-
   This code quicksorts a random list of size given by the argument
   (default 1M) and times both sequential quicksort and parallel (using
   Pthreads).
@@ -19,7 +18,7 @@
 #include <string.h>
 
 #define DNUM 1000000
-#define THREAD_LEVEL 10
+#define DTHREAD_LEVEL 10
 
 //for sequential and parallel implementation
 void swap(double lyst[], int i, int j);
@@ -58,9 +57,22 @@ int main(int argc, char *argv[])
   srand(time(NULL));            //seed random
 
   int NUM = DNUM;
+int THREAD_LEVEL = DTHREAD_LEVEL;
+int REP = 1;
   if (argc == 2)                //user specified list size.
   {
     NUM = atoi(argv[1]);
+  }
+else if (argc == 3)                //user specified list size.
+  {
+    NUM = atoi(argv[1]);
+THREAD_LEVEL = atoi(argv[2]);
+  }
+else if (argc == 4)                //user specified list size.
+  {
+    NUM = atoi(argv[1]);
+THREAD_LEVEL = atoi(argv[2]);
+REP = atoi(argv[3]);
   }
   //Want to compare sorting on the same list,
   //so backup.
@@ -87,9 +99,8 @@ int main(int argc, char *argv[])
   //Compute time difference.
   diff = ((end.tv_sec * 1000000 + end.tv_usec)
           - (start.tv_sec * 1000000 + start.tv_usec)) / 1000000.0;
-  printf("Sequential quicksort took: %lf sec.\n", diff);
-
-
+  //printf("Sequential quicksort took: %lf sec.\n", diff);
+	printf("%d,%d,%d,%lf",REP,NUM,THREAD_LEVEL,diff);
 
   //Now, parallel quicksort.
 
@@ -106,8 +117,8 @@ int main(int argc, char *argv[])
   //Compute time difference.
   diff = ((end.tv_sec * 1000000 + end.tv_usec)
           - (start.tv_sec * 1000000 + start.tv_usec)) / 1000000.0;
-  printf("Parallel quicksort took: %lf sec.\n", diff);
-
+  //printf("Parallel quicksort took: %lf sec.\n", diff);
+printf(",%lf",diff);
 
 
   //Finally, built-in for reference:
@@ -122,7 +133,8 @@ int main(int argc, char *argv[])
   //Compute time difference.
   diff = ((end.tv_sec * 1000000 + end.tv_usec)
           - (start.tv_sec * 1000000 + start.tv_usec)) / 1000000.0;
-  printf("Built-in quicksort took: %lf sec.\n", diff);
+  //printf("Built-in quicksort took: %lf sec.\n", diff);
+printf(",%lf\n",diff);
 
   free(lyst);
   free(lystbck);
@@ -224,8 +236,7 @@ void *parallelQuicksortHelper(void *threadarg)
   my_data = (struct thread_data *) threadarg;
 
   //fyi:
-  //printf("Thread responsible for [%d, %d], level %d.\n",
-  //              my_data->low, my_data->high, my_data->level);
+  //printf("Thread responsible for [%d, %d], level %d.\n",my_data->low, my_data->high, my_data->level);
 
   if (my_data->level <= 0 || my_data->low == my_data->high+1) {
     //We have plenty of threads, finish with sequential.
